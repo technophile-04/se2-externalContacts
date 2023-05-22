@@ -1,6 +1,23 @@
 import { ChangeEventHandler, useState } from "react";
 import Head from "next/head";
+import { javascript } from "@codemirror/lang-javascript";
+import CodeMirror from "@uiw/react-codemirror";
 import type { NextPage } from "next";
+
+/* interface DeployedContractStructure {
+  [key: number]: [
+    {
+      name: string;
+      chainId: string;
+      contracts: {
+        [key: string]: {
+          address: string;
+          abi: any[];
+        };
+      };
+    },
+  ];
+} */
 
 const FormInput = ({
   onChange,
@@ -38,6 +55,7 @@ const Home: NextPage = () => {
     contractAddress: "",
     chainId: "",
   });
+  // const [contractAbi, setContractAbi] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -74,6 +92,15 @@ const Home: NextPage = () => {
             value={formState.chainId}
             placeholder="chainId"
             onChange={handleChange}
+          />
+          <CodeMirror
+            value="console.log('hello world!');"
+            height="200px"
+            extensions={[javascript({ jsx: true })]}
+            onChange={(value, viewUpdate) => {
+              console.log("value:", value);
+              console.log("viewUpdate:", viewUpdate);
+            }}
           />
           <button className="btn-secondary btn btn-md" onClick={() => console.log(formState)}>
             Submit

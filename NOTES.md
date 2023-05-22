@@ -19,7 +19,7 @@ const contracts = {
 export default contracts;
 ```
 
-## Flow :
+## Flow:
 
 1. User copy paste his `deployedContracts.ts` file in the input box
 2. User will enter new external contracts details
@@ -37,3 +37,7 @@ export default contracts;
 - [ ] Get minimal thing work with user passing abi
   - [ ] Add tooltip beside each input
 - [ ] Add an option to fetch from etherscan
+
+## Reources:
+
+Use `acorn` for parsing input ABI
