@@ -1,9 +1,49 @@
+import { ChangeEventHandler, useState } from "react";
 import Head from "next/head";
-import Link from "next/link";
 import type { NextPage } from "next";
-import { BugAntIcon, SparklesIcon } from "@heroicons/react/24/outline";
+
+const FormInput = ({
+  onChange,
+  placeholder,
+  inputName,
+  value,
+  name,
+}: {
+  onChange: ChangeEventHandler<HTMLInputElement>;
+  placeholder: string;
+  name: string;
+  value: string;
+  inputName: string;
+}) => {
+  return (
+    <div className="flex flex-col my-4">
+      <p className="my-0 mb-1 ml-1">{inputName}</p>
+      <div className="flex rounded-full border-2 border-base-300 bg-base-200 text-accent">
+        <input
+          className="px-4 w-full font-medium text-gray-400 border focus:text-gray-400 focus:bg-transparent focus:outline-none input input-ghost h-[2.2rem] min-h-[2.2rem] placeholder:text-accent/50"
+          placeholder={placeholder}
+          name={name}
+          autoComplete="off"
+          value={value}
+          onChange={onChange}
+        />
+      </div>
+    </div>
+  );
+};
 
 const Home: NextPage = () => {
+  const [formState, setFormState] = useState({
+    contractName: "",
+    contractAddress: "",
+    chainId: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormState(prevState => ({ ...prevState, [name]: value }));
+  };
+
   return (
     <>
       <Head>
@@ -11,45 +51,33 @@ const Home: NextPage = () => {
         <meta name="description" content="Created with 🏗 scaffold-eth-2" />
       </Head>
 
-      <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center mb-8">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
-          </h1>
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold">packages/nextjs/pages/index.tsx</code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract <code className="italic bg-base-300 text-base font-bold">YourContract.sol</code> in{" "}
-            <code className="italic bg-base-300 text-base font-bold">packages/hardhat/contracts</code>
-          </p>
-        </div>
-
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contract
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <SparklesIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Experiment with{" "}
-                <Link href="/example-ui" passHref className="link">
-                  Example UI
-                </Link>{" "}
-                to build your own UI.
-              </p>
-            </div>
-          </div>
+      <div className="flex flex-col flex-grow items-center pt-10">
+        <div className="flex flex-col p-4 rounded-2xl bg-primary">
+          <p className="self-center my-0 text-xl font-semibold text-center">Enter Contract details</p>
+          <FormInput
+            inputName="Contract Name"
+            name="contractName"
+            value={formState.contractName}
+            placeholder="contractName"
+            onChange={handleChange}
+          />
+          <FormInput
+            inputName="Contract Address"
+            name="contractAddress"
+            value={formState.contractAddress}
+            placeholder="contractAddress"
+            onChange={handleChange}
+          />
+          <FormInput
+            inputName="Chain Id"
+            name="chainId"
+            value={formState.chainId}
+            placeholder="chainId"
+            onChange={handleChange}
+          />
+          <button className="btn-secondary btn btn-md" onClick={() => console.log(formState)}>
+            Submit
+          </button>
         </div>
       </div>
     </>

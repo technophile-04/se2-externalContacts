@@ -35,4 +35,5 @@ export default contracts;
 ## TODO:
 
 - [ ] Get minimal thing work with user passing abi
+  - [ ] Add tooltip beside each input
 - [ ] Add an option to fetch from etherscan
