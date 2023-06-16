@@ -3,8 +3,10 @@ import Head from "next/head";
 import { javascript } from "@codemirror/lang-javascript";
 import CodeMirror from "@uiw/react-codemirror";
 import type { NextPage } from "next";
+import * as chains from "wagmi/chains";
+import { notification } from "~~/utils/scaffold-eth";
 
-/* interface DeployedContractStructure {
+interface DeployedContractStructure {
   [key: number]: [
     {
       name: string;
@@ -17,7 +19,7 @@ import type { NextPage } from "next";
       };
     },
   ];
-} */
+}
 
 const FormInput = ({
   onChange,
@@ -54,6 +56,9 @@ const Home: NextPage = () => {
     contractName: "",
     contractAddress: "",
     chainId: "",
+    deployedContractsValue: "{}",
+    newContractAbi: "",
+    mergedContractsObject: "",
   });
   // const [contractAbi, setContractAbi] = useState("");
 
@@ -69,8 +74,8 @@ const Home: NextPage = () => {
         <meta name="description" content="Created with 🏗 scaffold-eth-2" />
       </Head>
 
-      <div className="flex flex-col flex-grow items-center pt-10">
-        <div className="flex flex-col p-4 rounded-2xl bg-primary">
+      <div className="flex flex-col flex-grow space-y-8 items-center justify-center pt-10 w-full">
+        <div className="flex flex-col p-4 rounded-2xl bg-primary w-[50%]">
           <p className="self-center my-0 text-xl font-semibold text-center">Enter Contract details</p>
           <FormInput
             inputName="Contract Name"
@@ -93,8 +98,84 @@ const Home: NextPage = () => {
             placeholder="chainId"
             onChange={handleChange}
           />
+          <p className="my-0">Generated with SE-2:</p>
+          <div className="mb-5">
+            <CodeMirror
+              value={formState.deployedContractsValue}
+              height="200px"
+              extensions={[javascript({ jsx: true })]}
+              onChange={value => {
+                setFormState(prevState => ({ ...prevState, deployedContractsValue: value }));
+              }}
+            />
+          </div>
+          <p className="my-0">New Contract Abi</p>
           <CodeMirror
-            value="console.log('hello world!');"
+            value={formState.newContractAbi}
+            height="200px"
+            extensions={[javascript({ jsx: true })]}
+            onChange={value => {
+              setFormState(prevState => ({ ...prevState, newContractAbi: value }));
+            }}
+          />
+          <button
+            className="btn-secondary btn btn-md mt-5"
+            onClick={() => {
+              const trimmedSpaceValue = formState.deployedContractsValue.trim();
+              const isStringSafe =
+                trimmedSpaceValue !== "" && trimmedSpaceValue.startsWith("{") && trimmedSpaceValue.endsWith("}");
+              if (isStringSafe) {
+                const deployedContractsObject = eval(
+                  `(${formState.deployedContractsValue})`,
+                ) as DeployedContractStructure;
+                const newContractAbiObject = { address: "", abi: [] };
+                try {
+                  newContractAbiObject.address = formState.contractAddress;
+                  newContractAbiObject.abi = eval(formState.newContractAbi);
+                  console.log("newContractAbiObject:", newContractAbiObject);
+                } catch (error) {
+                  notification.error("Cannot parse Abi, please enter a valid Abi");
+                }
+                const chainNames = Object.keys(chains);
+
+                const targetChainName = chainNames.find(chainName => {
+                  return chains[chainName as keyof typeof chains].id === parseInt(formState.chainId);
+                });
+
+                if (targetChainName === undefined) {
+                  notification.error("Please enter a valid chainId");
+                  return;
+                }
+
+                const targetChain = chains[targetChainName as keyof typeof chains];
+
+                const newDeployedContractsObject = {
+                  ...deployedContractsObject,
+                  [parseInt(formState.chainId)]: [
+                    {
+                      name: targetChain.name,
+                      chainId: formState.chainId,
+                      contracts: {
+                        ...deployedContractsObject[parseInt(formState.chainId)][0].contracts,
+                        [formState.contractName]: newContractAbiObject,
+                      },
+                    },
+                  ],
+                };
+
+                console.log("Converted Object:", newDeployedContractsObject);
+              } else {
+                notification.error("Please enter a valid object");
+              }
+            }}
+          >
+            Submit
+          </button>
+        </div>
+        <div className="flex flex-col p-4 rounded-2xl bg-primary w-[50%]">
+          <p className="self-center my-0 text-xl font-semibold text-center">Merged Object</p>
+          <CodeMirror
+            value={formState.deployedContractsValue}
             height="200px"
             extensions={[javascript({ jsx: true })]}
             onChange={(value, viewUpdate) => {
@@ -102,9 +183,6 @@ const Home: NextPage = () => {
               console.log("viewUpdate:", viewUpdate);
             }}
           />
-          <button className="btn-secondary btn btn-md" onClick={() => console.log(formState)}>
-            Submit
-          </button>
         </div>
       </div>
     </>
