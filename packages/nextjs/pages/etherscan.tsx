@@ -1,8 +1,11 @@
 import { ChangeEventHandler, useState } from "react";
 import Head from "next/head";
 import { javascript } from "@codemirror/lang-javascript";
+import { githubLight } from "@uiw/codemirror-theme-github";
+import { tokyoNight } from "@uiw/codemirror-theme-tokyo-night";
 import CodeMirror from "@uiw/react-codemirror";
 import type { NextPage } from "next";
+import { useDarkMode } from "usehooks-ts";
 import * as chains from "wagmi/chains";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -72,6 +75,7 @@ const FormInput = ({
 };
 
 const Etherscan: NextPage = () => {
+  const { isDarkMode } = useDarkMode();
   const [formState, setFormState] = useState({
     contractName: "",
     contractAddress: "",
@@ -80,7 +84,6 @@ const Etherscan: NextPage = () => {
     mergedContractsObject: "",
   });
   const [mergedContractsObject, setMergedContractsObject] = useState({});
-  // const [contractAbi, setContractAbi] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -136,6 +139,7 @@ const Etherscan: NextPage = () => {
             <CodeMirror
               value={formState.deployedContractsValue}
               height="200px"
+              theme={isDarkMode ? tokyoNight : githubLight}
               extensions={[javascript({ jsx: true })]}
               onChange={value => {
                 setFormState(prevState => ({ ...prevState, deployedContractsValue: value }));
@@ -179,7 +183,7 @@ const Etherscan: NextPage = () => {
                   ...deployedContractsObject,
                   [parseInt(formState.chainId)]: [
                     {
-                      name: targetChain.name,
+                      name: targetChain.network,
                       chainId: formState.chainId,
                       contracts: {
                         ...deployedContractsObject[parseInt(formState.chainId)]?.[0].contracts,
@@ -204,6 +208,7 @@ const Etherscan: NextPage = () => {
           <CodeMirror
             value={JSON.stringify(mergedContractsObject, null, 2)}
             height="200px"
+            theme={isDarkMode ? tokyoNight : githubLight}
             extensions={[javascript({ jsx: true })]}
             onChange={(value, viewUpdate) => {
               console.log("value:", value);

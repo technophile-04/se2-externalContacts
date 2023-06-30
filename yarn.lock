@@ -1975,6 +1975,8 @@ __metadata:
     "@types/react-blockies": ^1.4.1
     "@types/react-copy-to-clipboard": ^5.0.4
     "@typescript-eslint/eslint-plugin": ^5.39.0
+    "@uiw/codemirror-theme-github": ^4.21.7
+    "@uiw/codemirror-theme-tokyo-night": ^4.21.7
     "@uiw/react-codemirror": ^4.20.2
     "@uniswap/sdk": ^3.0.3
     autoprefixer: ^10.4.12
@@ -3050,6 +3052,39 @@ __metadata:
     "@codemirror/state": ">=6.0.0"
     "@codemirror/view": ">=6.0.0"
   checksum: fc2a7aa077e6dd580032aeb1dbd987e891e99a72b4509eb85e837f6dbb739cb2b8801b7213bd18eca0644461dc8d23455eaf4933c6e112a9ff952077f7bee12f
+  languageName: node
+  linkType: hard
+
+"@uiw/codemirror-theme-github@npm:^4.21.7":
+  version: 4.21.7
+  resolution: "@uiw/codemirror-theme-github@npm:4.21.7"
+  dependencies:
+    "@uiw/codemirror-themes": 4.21.7
+  checksum: a6e4acef1b31932a074570909adeb1d5ab20f10497ef9cd5f5a7b71fb9e4e2afe2161939f525b417ac32b338a8b1783b8be12380062a1eb70a85f77016f50cb4
+  languageName: node
+  linkType: hard
+
+"@uiw/codemirror-theme-tokyo-night@npm:^4.21.7":
+  version: 4.21.7
+  resolution: "@uiw/codemirror-theme-tokyo-night@npm:4.21.7"
+  dependencies:
+    "@uiw/codemirror-themes": 4.21.7
+  checksum: 4dd36642309cf23279802fdd69c5b3a4a3cee5602de37f7cb4fa9f116c81c55a51292fd4530f3ca54253c928e0d9c36b5aeb5cfae95ad0cde7c9daff6f5d2d0c
+  languageName: node
+  linkType: hard
+
+"@uiw/codemirror-themes@npm:4.21.7":
+  version: 4.21.7
+  resolution: "@uiw/codemirror-themes@npm:4.21.7"
+  dependencies:
+    "@codemirror/language": ^6.0.0
+    "@codemirror/state": ^6.0.0
+    "@codemirror/view": ^6.0.0
+  peerDependencies:
+    "@codemirror/language": ">=6.0.0"
+    "@codemirror/state": ">=6.0.0"
+    "@codemirror/view": ">=6.0.0"
+  checksum: b6bf80fa0012f577037851c334bb029f8a1eff04146f729430214812abe1bbf480889cbb2e8eaf3829d01c7ffc78d2a9ee1ec67bf6a20e1f5eb286bfb9e81c47
   languageName: node
   linkType: hard
 

@@ -1,8 +1,11 @@
 import { ChangeEventHandler, useState } from "react";
 import Head from "next/head";
 import { javascript } from "@codemirror/lang-javascript";
+import { githubLight } from "@uiw/codemirror-theme-github";
+import { tokyoNight } from "@uiw/codemirror-theme-tokyo-night";
 import CodeMirror from "@uiw/react-codemirror";
 import type { NextPage } from "next";
+import { useDarkMode } from "usehooks-ts";
 import * as chains from "wagmi/chains";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -52,6 +55,7 @@ const FormInput = ({
 };
 
 const Home: NextPage = () => {
+  const { isDarkMode } = useDarkMode();
   const [formState, setFormState] = useState({
     contractName: "",
     contractAddress: "",
@@ -61,7 +65,6 @@ const Home: NextPage = () => {
   });
 
   const [mergedContractsObject, setMergedContractsObject] = useState({});
-  // const [contractAbi, setContractAbi] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -103,6 +106,7 @@ const Home: NextPage = () => {
           <div className="mb-5">
             <CodeMirror
               value={formState.deployedContractsValue}
+              theme={isDarkMode ? tokyoNight : githubLight}
               height="200px"
               extensions={[javascript({ jsx: true })]}
               onChange={value => {
@@ -112,6 +116,7 @@ const Home: NextPage = () => {
           </div>
           <p className="my-0">New Contract Abi</p>
           <CodeMirror
+            theme={isDarkMode ? tokyoNight : githubLight}
             value={formState.newContractAbi}
             height="200px"
             extensions={[javascript({ jsx: true })]}
@@ -154,10 +159,10 @@ const Home: NextPage = () => {
                   ...deployedContractsObject,
                   [parseInt(formState.chainId)]: [
                     {
-                      name: targetChain.name,
+                      name: targetChain.network,
                       chainId: formState.chainId,
                       contracts: {
-                        ...deployedContractsObject[parseInt(formState.chainId)][0].contracts,
+                        ...deployedContractsObject[parseInt(formState.chainId)]?.[0].contracts,
                         [formState.contractName]: newContractAbiObject,
                       },
                     },
@@ -177,6 +182,7 @@ const Home: NextPage = () => {
         <div className="flex flex-col p-4 rounded-2xl bg-primary w-[50%]">
           <p className="self-center my-0 text-xl font-semibold text-center">Merged Object</p>
           <CodeMirror
+            theme={isDarkMode ? tokyoNight : githubLight}
             value={JSON.stringify(mergedContractsObject, null, 2)}
             height="200px"
             extensions={[javascript({ jsx: true })]}
