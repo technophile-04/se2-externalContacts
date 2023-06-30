@@ -6,6 +6,26 @@ import type { NextPage } from "next";
 import * as chains from "wagmi/chains";
 import { notification } from "~~/utils/scaffold-eth";
 
+const etherscanApiKey = process.env.ETHERSCAN_API_KEY || "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW";
+
+const chainNames = Object.keys(chains);
+const targetChainArr = chainNames.filter(chainName => {
+  const wagmiChain = chains[chainName as keyof typeof chains];
+  // @ts-expect-error
+  if (wagmiChain?.blockExplorers?.etherscan) return true;
+});
+
+const getAbiFromEtherscan = async (address: string) => {
+  const url = `https://api.etherscan.io/api?module=contract&action=getabi&address=${address}&apikey=${etherscanApiKey}`;
+  const response = await fetch(url);
+  const data = await response.json();
+  if (data.status === "0") {
+    notification.error(data.result);
+    return [];
+  }
+  return JSON.parse(data.result);
+};
+
 interface DeployedContractStructure {
   [key: number]: [
     {
@@ -51,15 +71,14 @@ const FormInput = ({
   );
 };
 
-const Home: NextPage = () => {
+const Etherscan: NextPage = () => {
   const [formState, setFormState] = useState({
     contractName: "",
     contractAddress: "",
     chainId: "",
     deployedContractsValue: "{}",
-    newContractAbi: "",
+    mergedContractsObject: "",
   });
-
   const [mergedContractsObject, setMergedContractsObject] = useState({});
   // const [contractAbi, setContractAbi] = useState("");
 
@@ -92,13 +111,26 @@ const Home: NextPage = () => {
             placeholder="contractAddress"
             onChange={handleChange}
           />
-          <FormInput
-            inputName="Chain Id"
-            name="chainId"
-            value={formState.chainId}
-            placeholder="chainId"
-            onChange={handleChange}
-          />
+          <select
+            className="select w-full max-w-xs"
+            onChange={e =>
+              setFormState(prevState => ({
+                ...prevState,
+                chainId: chains[e.target.value as keyof typeof chains].id.toString(),
+              }))
+            }
+          >
+            <option disabled selected>
+              Pick the chain
+            </option>
+            {targetChainArr.map(chainName => {
+              return (
+                <option key={chainName} value={chainName}>
+                  {chains[chainName as keyof typeof chains].name}
+                </option>
+              );
+            })}
+          </select>
           <p className="my-0">Generated with SE-2:</p>
           <div className="mb-5">
             <CodeMirror
@@ -110,18 +142,9 @@ const Home: NextPage = () => {
               }}
             />
           </div>
-          <p className="my-0">New Contract Abi</p>
-          <CodeMirror
-            value={formState.newContractAbi}
-            height="200px"
-            extensions={[javascript({ jsx: true })]}
-            onChange={value => {
-              setFormState(prevState => ({ ...prevState, newContractAbi: value }));
-            }}
-          />
           <button
             className="btn-secondary btn btn-md mt-5"
-            onClick={() => {
+            onClick={async () => {
               const trimmedSpaceValue = formState.deployedContractsValue.trim();
               const isStringSafe =
                 trimmedSpaceValue !== "" && trimmedSpaceValue.startsWith("{") && trimmedSpaceValue.endsWith("}");
@@ -129,13 +152,15 @@ const Home: NextPage = () => {
                 const deployedContractsObject = eval(
                   `(${formState.deployedContractsValue})`,
                 ) as DeployedContractStructure;
+
+                // We will fetch abi from etherscan and assign it to the newContractAbiObject
                 const newContractAbiObject = { address: "", abi: [] };
                 try {
                   newContractAbiObject.address = formState.contractAddress;
-                  newContractAbiObject.abi = eval(formState.newContractAbi);
+                  newContractAbiObject.abi = await getAbiFromEtherscan(formState.contractAddress);
                   console.log("newContractAbiObject:", newContractAbiObject);
                 } catch (error) {
-                  notification.error("Cannot parse Abi, please enter a valid Abi");
+                  notification.error("Cannot fetch Abi from etherscan, please enter a valid contract address");
                 }
                 const chainNames = Object.keys(chains);
 
@@ -157,7 +182,7 @@ const Home: NextPage = () => {
                       name: targetChain.name,
                       chainId: formState.chainId,
                       contracts: {
-                        ...deployedContractsObject[parseInt(formState.chainId)][0].contracts,
+                        ...deployedContractsObject[parseInt(formState.chainId)]?.[0].contracts,
                         [formState.contractName]: newContractAbiObject,
                       },
                     },
@@ -191,4 +216,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Etherscan;
